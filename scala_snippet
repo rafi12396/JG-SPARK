@@ -1,0 +1,301 @@
+conf.setProperty("gremlin.graph", "org.apache.tinkerpop.gremlin.hadoop.structure.HadoopGraph")
+
+conf.setProperty("gremlin.hadoop.graphReader", "org.janusgraph.hadoop.formats.cql.CqlInputFormat")
+
+conf.setProperty("gremlin.hadoop.graphWriter", "org.apache.hadoop.mapreduce.lib.output.NullOutputFormat")
+
+conf.setProperty("janusgraphmr.ioformat.conf.storage.backend", "cql")
+
+conf.setProperty("janusgraphmr.ioformat.conf.storage.hostname", "127.0.0.1")
+conf.setProperty("janusgraphmr.ioformat.conf.storage.port",9042)
+conf.setProperty("janusgraphmr.ioformat.conf.storage.cql.keyspace","kscan_graph_db_0001")
+
+conf.setProperty("janusgraphmr.ioformat.conf.index.search.backend","elasticsearch")
+conf.setProperty("janusgraphmr.ioformat.conf.index.search.hostname","127.0.0.1")
+
+conf.setProperty("cassandra.input.partitioner.class","org.apache.cassandra.dht.Murmur3Partitioner")
+conf.setProperty("cassandra.input.widerows",true)
+conf.setProperty("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+
+
+
+spark = SparkSession.builder.appName('my_awesome').config('spark.jars.packages', '/home/jovyan/.ivy2/jars/hadoop-gremlin-3.4.3.jar').getOrCreate()
+
+(((former\s?)?)|((erstwhile\s?)?)|((old\s?)?)|((previous\s?)?))?(ly\s?)?(name\s)?(known\s)?(as\s)?
+
+
+
+(?,(?<=current)|(?<=present))((ly(,)?)?(\sknown(,)?)?(\sas(,)?)?(\sname(,)?)?)
+
+first_name => Gujarat Financial  & Capital  Ltd 
+additional_name(presently known as Gujarat Financial & Capital P Ltd) Cancelled vide CO Order dated March 16, 2018
+first_add_name(presently known as Gujarat Financial & Capital P Ltd)
+last_add_name Cancelled vide CO Order dated March 16, 2018
+
+
+
+Gujarat Financial  & Capital  Ltd (presently known as Gujarat Financial & Capital P Ltd) Cancelled vide CO Order dated March 16, 2018
+
+Gujarat Financial  & Capital  Ltd (cancelled viad 4d)
+
+
+def _split_by_pattern(input_string, pattern),
+    name_index = re.search(pattern, input_string, flags=re.IGNORECASE)
+    first_name = None
+    additional_name = None
+    if name_index,
+        end_index = name_index.end()
+        first_name = input_string[,end_index + 1]
+        additional_name = input_string[end_index + 1,]
+    return first_name, additional_name
+
+
+
+
+
+# Copyright 2019 JanusGraph Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#
+# Hadoop Graph Configuration
+#
+gremlin.graph=org.apache.tinkerpop.gremlin.hadoop.structure.HadoopGraph
+gremlin.hadoop.graphReader=org.janusgraph.hadoop.formats.cql.CqlInputFormat
+gremlin.hadoop.graphWriter=org.apache.hadoop.mapreduce.lib.output.NullOutputFormat
+
+gremlin.hadoop.jarsInDistributedCache=true
+gremlin.hadoop.inputLocation=none
+gremlin.hadoop.outputLocation=output
+gremlin.spark.persistContext=true
+
+#
+# JanusGraph Cassandra InputFormat configuration
+#
+# These properties defines the connection properties which were used while write data to JanusGraph.
+janusgraphmr.ioformat.conf.storage.backend=cql
+# This specifies the hostname & port for Cassandra data store.
+janusgraphmr.ioformat.conf.storage.hostname=127.0.0.1
+janusgraphmr.ioformat.conf.storage.port=9042
+# This specifies the keyspace where data is stored.
+janusgraphmr.ioformat.conf.storage.cql.keyspace=kscan_graph_db_0001
+# This defines the indexing backend configuration used while writing data to JanusGraph.
+janusgraphmr.ioformat.conf.index.search.backend=elasticsearch
+janusgraphmr.ioformat.conf.index.search.hostname=127.0.0.1
+# Use the appropriate properties for the backend when using a different storage backend (HBase) or indexing backend (Solr).
+
+#
+# Apache Cassandra InputFormat configuration
+#
+cassandra.input.partitioner.class=org.apache.cassandra.dht.Murmur3Partitioner
+cassandra.input.widerows=true
+
+#
+# SparkGraphComputer Configuration
+#
+spark.master=local[*]
+spark.executor.memory=1g
+spark.serializer=org.apache.spark.serializer.KryoSerializer
+spark.kryo.registrator=org.janusgraph.hadoop.serialize.JanusGraphKryoRegistrator
+
+
+======================================
+
+
+
+val getEdges =(vrtx:org.apache.tinkerpop.gremlin.hadoop.structure.io.VertexWritable) => {
+	val strvrtx = vrtx.get()
+	val it = strvrtx.edges(Direction.BOTH)
+	var edges = Array(org.apache.tinkerpop.gremlin.structure.Edge)
+	while(it.hasNext()){
+		edges :+ it.next()
+	}
+	edges
+}
+
+
+val rdd: RDD[(NullWritable, VertexWritable)] =spark.sparkContext.newAPIHadoopRDD(hadoopConfiguration,hadoopConfiguration.getClass(Constants.GREMLIN_HADOOP_GRAPH_READER, classOf[InputFormat[NullWritable, VertexWritable]]).asInstanceOf[Class[InputFormat[NullWritable, VertexWritable]]],classOf[NullWritable], classOf[VertexWritable])
+
+--------------------------------------------------------------
+val rdd: RDD[(NullWritable, VertexWritable)] =spark.sparkContext.newAPIHadoopRDD(hadoopConfiguration,classOf[CqlInputFormat],classOf[NullWritable], classOf[VertexWritable])
+
+rdd.map(_.toString)
+
+bhav_df0 = spark.read.format('org.apache.spark.sql.cassandra').options(keyspace="kscan_bse_db_0001", table="bse_bhav_copy").load()\
+
+
+============================
+import scala.collection.mutable.ArrayBuffer
+
+import org.apache.commons.configuration.BaseConfiguration
+import org.apache.commons.configuration.Configuration
+import org.apache.hadoop.io.NullWritable
+import org.apache.tinkerpop.gremlin.hadoop.structure.util.ConfUtil
+import org.apache.tinkerpop.gremlin.hadoop.structure.io.VertexWritable
+import org.apache.hadoop.mapreduce.InputFormat
+import org.apache.tinkerpop.gremlin.hadoop.Constants
+import org.janusgraph.hadoop.formats.cql.CqlInputFormat
+import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality
+import org.apache.spark.rdd.RDD
+import org.janusgraph.hadoop.serialize.JanusGraphKryoRegistrator
+import org.apache.spark.serializer.KryoRegistrator
+import com.esotericsoftware.kryo.Kryo
+import org.apache.tinkerpop.gremlin.structure.Direction
+import org.janusgraph.core.attribute.Geoshape
+import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils
+import org.apache.tinkerpop.gremlin.hadoop.structure.io.gryo.GryoOutputFormat
+
+
+
+--------------------------------------------------------------------------------------------
+@transient val conf: Configuration = new BaseConfiguration()
+
+
+conf.setProperty("gremlin.graph", "org.apache.tinkerpop.gremlin.hadoop.structure.HadoopGraph")
+
+conf.setProperty("gremlin.hadoop.graphReader", "org.janusgraph.hadoop.formats.cql.CqlInputFormat")
+
+conf.setProperty("gremlin.hadoop.graphWriter", "org.apache.hadoop.mapreduce.lib.output.NullOutputFormat")
+conf.setProperty("spark.cassandra.connection.host", "127.0.0.1")
+
+conf.setProperty("janusgraphmr.ioformat.conf.storage.backend", "cql")
+
+conf.setProperty("janusgraphmr.ioformat.conf.storage.hostname", "127.0.0.1")
+conf.setProperty("janusgraphmr.ioformat.conf.storage.port", 9042)
+
+conf.setProperty("janusgraphmr.ioformat.conf.storage.cql.keyspace", "kscan_graph_db_0001")
+
+conf.setProperty("janusgraphmr.ioformat.conf.index.search.backend", "elasticsearch")
+conf.setProperty("janusgraphmr.ioformat.conf.index.search.hostname", "127.0.0.1")
+conf.setProperty("janusgraphmr.ioformat.conf.index.search.port", 9200)
+conf.setProperty("janusgraphmr.ioformat.conf.index.search.index-name", "kscan_graph_0001")
+
+
+conf.setProperty("cassandra.input.partitioner.class","org.apache.cassandra.dht.Murmur3Partitioner")
+conf.setProperty("cassandra.input.widerows",true)
+conf.setProperty("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+
+conf.setProperty("spark.kryo.registrator", "org.janusgraph.hadoop.serialize.JanusGraphKryoRegistrator")
+
+
+
+conf.setProperty("spark.kryo.registrator", "MyRegistrator")
+@transient val hadoopConfiguration = ConfUtil.makeHadoopConfiguration(conf)
+--------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+====================================================
+
+
+res17: Array[String] = Array(v[8344], v[12440], v[4336], v[4320], v[4136], v[8416], v[8192], v[4248], v[4344], v[8432], v[12528], v[4096])
+
+
+rdd: org.apache.spark.rdd.RDD[(org.apache.hadoop.io.NullWritable, org.apache.tinkerpop.gremlin.hadoop.structure.io.VertexWritable)] = NewHadoopRDD[0] at newAPIHadoopRDD at <console>:34
+
+rdd.map{case (x,y)=>y.asInstanceOf[VertexWritable]}
+
+
+========================================
+
+val printProperties = (vertex_iter :java.util.Iterator[org.apache.tinkerpop.gremlin.structure.VertexProperty[Nothing]]) => {
+        while(vertex_iter.hasNext()){
+		println(vertex_iter.next())
+	}
+}
+
+val getProperties = (id:Int,vertex_iter :java.util.Iterator[org.apache.tinkerpop.gremlin.structure.VertexProperty[Nothing]]) => {
+	var zproperties = ArrayBuffer[String]()
+        while(vertex_iter.hasNext()){
+		zproperties += vertex_iter.next().toString()
+	}
+	zproperties
+}
+
+val getPropertiesId = (id:Int,vertex_iter :java.util.Iterator[org.apache.tinkerpop.gremlin.structure.VertexProperty[Nothing]]) => {
+	var zproperties = ArrayBuffer[(Int,String)]()
+        while(vertex_iter.hasNext()){
+		zproperties += ((id,vertex_iter.next().toString()))
+	}
+	zproperties
+}
+
+
+val filterProperties = (vertex_iter :java.util.Iterator[org.apache.tinkerpop.gremlin.structure.VertexProperty[Nothing]]) => {
+	var zproperties = ArrayBuffer[String]()
+        while(vertex_iter.hasNext()){
+		zproperties += vertex_iter.next().toString()
+	}
+	if 
+}
+
+class MyRegistrator extends KryoRegistrator {
+  override def registerClasses(kryo: Kryo) {
+	kryo.register(classOf[org.apache.commons.configuration.Configuration])
+	kryo.register(classOf[org.apache.commons.configuration.BaseConfiguration])
+  }
+}
+
+val getAge = (vertex_wrtble:org.apache.tinkerpop.gremlin.hadoop.structure.io.VertexWritable) => {
+	var zproperties = ArrayBuffer[(Int,String)]()
+	val strvrtx = vertex_wrtble.get()
+	val strprp = strvrtx.properties("age")
+	while(strprp.hasNext()){
+		zproperties += ((strvrtx.id.hashCode,strprp.next().value.toString()))
+	}
+	zproperties
+}
+
+val getAll = (vertex_wrtble:org.apache.tinkerpop.gremlin.hadoop.structure.io.VertexWritable) => {
+	var zproperties = ArrayBuffer[(Int,String)]()
+	val strvrtx = vertex_wrtble.get()
+	val strprp = strvrtx.properties()
+	while(strprp.hasNext()){
+		zproperties += ((strvrtx.id.hashCode,strprp.next().toString()))
+	}
+	zproperties
+}
+
+val filterAge = (vertex_wrtble:org.apache.tinkerpop.gremlin.hadoop.structure.io.VertexWritable) => {
+	val strvrtx = vertex_wrtble.get()
+	var res = false
+	val strprp = strvrtx.properties("age")
+	while(strprp.hasNext()){
+		if(strvrtx.id.hashCode.toString() == "4320")
+		{
+			res = true
+		}
+	}
+	res
+}
+
+
+val filterId = (vertex_wrtble:org.apache.tinkerpop.gremlin.hadoop.structure.io.VertexWritable) => {
+	val strvrtx = vertex_wrtble.get()
+	var res = false
+	if(strvrtx.id.hashCode.toString() == "4320"){
+		res = true
+	}
+	res
+}
+
+
+res18.flatMap(x =>x.asInstanceOf[TraversableOnce[org.apache.tinkerpop.gremlin.structure.VertexProperty]])
+
+guava library version??
+groovy??
+
+
+jg-spark => fetch-all => 155
+grmlin-olap => fetch-all => 169
+
+jg-spark => filter_by_id => fetch_all => 172
+gremlin-olap => filter_by_id => fetch_all => 155
